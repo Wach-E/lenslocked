@@ -8,11 +8,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-// func Logger(next http.Handler) http.Handler {
-// 	return
-
-// }
-
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprint(w, "<h1>Welcome to my first awesome website!</h1>")
@@ -44,6 +39,17 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
   `)
 }
 
+func getUser(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "userID")
+	// ctx := r.Context()
+	// key := ctx.Value("key").(string)
+
+	// respond to the client
+	fmt.Fprintf(w, "hi %v", userID)
+	// fmt.Fprintf(w, "hi %v, %v", userID, key)
+	// w.Write([]byte(fmt.Sprintf("hi %v, %v", userID, key)))
+}
+
 func main() {
 	r := chi.NewRouter()
 
@@ -53,6 +59,14 @@ func main() {
 		r.Get("/", contactHandler)
 	})
 	r.Get("/faq", faqHandler)
+
+	r.Route("/users", func(r chi.Router) {
+		// Subrouters:
+		r.Route("/{userID}", func(r chi.Router) {
+			r.Use(middleware.Logger)
+			r.Get("/", getUser) // GET /users/123
+		})
+	})
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
