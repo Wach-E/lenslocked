@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -42,11 +43,13 @@ func faqHandler(w http.ResponseWriter, r *http.Request) {
 func getUser(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
 	// ctx := r.Context()
-	// key := ctx.Value("key").(string)
+	ctx := context.WithValue(r.Context(), userID, 123)
+	// fmt.Println(ctx.Value(key))
+	key := ctx.Value(userID)
 
 	// respond to the client
-	fmt.Fprintf(w, "hi %v", userID)
-	// fmt.Fprintf(w, "hi %v, %v", userID, key)
+	// fmt.Fprintf(w, "hi %v", userID)
+	fmt.Fprintf(w, "hi %v, %v", userID, key)
 	// w.Write([]byte(fmt.Sprintf("hi %v, %v", userID, key)))
 }
 
