@@ -12,16 +12,16 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func executeTemplate(w http.ResponseWriter, filepath string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tplPath := filepath.Join("templates", "home.gohtml")
 	// tpl, err := template.ParseFiles("templates\\home.gohtml")
-	tpl, err := template.ParseFiles(tplPath)
+	tpl, err := template.ParseFiles(filepath)
 	if err != nil {
 		log.Printf("parsinng template: %v", err)
 		http.Error(w, "There was an error parsing the template.",
 			http.StatusInternalServerError)
 		return
+	}
 
 	err = tpl.Execute(w, nil)
 	if err != nil {
@@ -32,9 +32,14 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	tplPath := filepath.Join("templates", "home.gohtml")
+	executeTemplate(w, tplPath)
+}
+
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, "<h1>Contact Page</h1><p>To get in touch, email me at <a href=\"mailto:immacurte1@gmail.com\">Wach Email</a>.</p>")
+	tplPath := filepath.Join("templates", "contact.gohtml")
+	executeTemplate(w, tplPath)
 }
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +73,6 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	// respond to the client
 	// fmt.Fprintf(w, "hi %v", userID)
 	fmt.Fprintf(w, "hi %v, %v", userID, key)
-	// w.Write([]byte(fmt.Sprintf("hi %v, %v", userID, key)))
 }
 
 func main() {
@@ -79,6 +83,7 @@ func main() {
 		r.Use(middleware.Logger)
 		r.Get("/", contactHandler)
 	})
+
 	r.Get("/faq", faqHandler)
 
 	r.Route("/users", func(r chi.Router) {
